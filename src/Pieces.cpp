@@ -17,7 +17,6 @@ namespace Chess{
         bool uClear = true;
         int d = 1;
         std::string checkPos;
-        BasePiece* pieceInSquare;
         checkPos = piecePos;
         char rank = (int)checkPos[1] + d;
         checkPos[1] = rank;
@@ -33,15 +32,40 @@ namespace Chess{
         }
         else{
             checkPos[0] = checkPos[0]--;
-            if (checkPos == pos && gameBoard.getSquare(checkPos)->getPrefix() != 'X') { canMoveToSquare = true; };
+            if (checkPos == pos 
+                && gameBoard.getSquare(checkPos)->getPrefix() != 'X' 
+                && gameBoard.getSquare(checkPos)->getColour() == !this->getColour()) { canMoveToSquare = true; };
             checkPos[0] = checkPos[0]++;
-            if (checkPos == pos && gameBoard.getSquare(checkPos)->getPrefix() != 'X') { canMoveToSquare = true; };
+            if (checkPos == pos 
+                && gameBoard.getSquare(checkPos)->getPrefix() != 'X' 
+                && gameBoard.getSquare(checkPos)->getColour() == !this->getColour()) { canMoveToSquare = true; };
         }
         return canMoveToSquare;
     };
     
-
-    bool King::canSeeSquare(std::string pos, bool isCapture) { return true; }; 
+    bool King::canSeeSquare(std::string pos, bool isCapture) { 
+        std::string piecePos = this->getPos();
+        int x = Board::colMap2[piecePos[0]];
+        int y = piecePos[1];
+        std::string checkPos;
+        for(int i = x-1; i <= x+1; i++ ){
+            for(int j = y-1; i <= x+1; j++ ){
+                checkPos = Board::colMap1[i] + (char)j;
+                if (checkPos == piecePos) { continue; };
+                if (checkPos == pos 
+                    && gameBoard.getSquare(checkPos)->getPrefix() != 'X' 
+                    && isCapture
+                    && !this->moveIsCheck(pos) 
+                    && gameBoard.getSquare(checkPos)->getColour() == !this->getColour()) { return true; }
+                else if (checkPos == pos 
+                    && gameBoard.getSquare(checkPos)->getPrefix() == 'X' 
+                    && !isCapture 
+                    && !this->moveIsCheck(pos)) { return true; }
+                else if (checkPos == pos) { return false; }
+            }
+        }
+        return false;
+    }; 
     bool Queen::canSeeSquare(std::string pos, bool isCapture) { return true; }; 
     bool Bishop::canSeeSquare(std::string pos, bool isCapture) { return true; }; 
     bool Knight::canSeeSquare(std::string pos, bool isCapture) { return true; }; 
