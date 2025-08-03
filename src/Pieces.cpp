@@ -66,9 +66,185 @@ namespace Chess{
         }
         return false;
     }; 
-    bool Queen::canSeeSquare(std::string pos, bool isCapture) { return true; }; 
-    bool Bishop::canSeeSquare(std::string pos, bool isCapture) { return true; }; 
 
+    bool Queen::canSeeSquare(std::string pos, bool isCapture) { 
+        std::string piecePos = this->getPos();
+        int x = Board::colMap2[piecePos[0]];
+        int y = piecePos[1];
+        bool uClear = true;
+        bool rClear = true;
+        bool dClear = true;
+        bool lClear = true;
+        bool urClear = true;
+        bool drClear = true;
+        bool dlClear = true;
+        bool ulClear = true;
+        std::string checkPos = piecePos;
+        for (int i = 1; i <= 7; i++ ){
+            if (uClear) {
+                checkPos = (char)(piecePos[0] + i) + (char)(piecePos[0]);
+                char prefix = gameBoard.getSquare(checkPos)->getPrefix();
+                if (prefix != 'X') { uClear = false; }
+                if (checkPos == pos 
+                && prefix != 'X' 
+                && isCapture
+                && gameBoard.getSquare(checkPos)->getColour() == !this->getColour()) { return true; }
+                else if (checkPos == pos 
+                && prefix == 'X' 
+                && !isCapture) { return true; }
+            }
+            if (dClear) {
+                checkPos = (char)(piecePos[0] - i) + (char)(piecePos[0]);
+                char prefix = gameBoard.getSquare(checkPos)->getPrefix();
+                if (prefix != 'X') { dClear = false; }
+                if (checkPos == pos 
+                && prefix != 'X' 
+                && isCapture
+                && gameBoard.getSquare(checkPos)->getColour() == !this->getColour()) { return true; }
+                else if (checkPos == pos 
+                && prefix == 'X' 
+                && !isCapture) { return true; }
+            }
+            if (rClear) {
+                checkPos = (char)(piecePos[0]) + (char)(piecePos[0] + i);
+                char prefix = gameBoard.getSquare(checkPos)->getPrefix();
+                if (prefix != 'X') { rClear = false; }
+                if (checkPos == pos 
+                && prefix != 'X' 
+                && isCapture
+                && gameBoard.getSquare(checkPos)->getColour() == !this->getColour()) { return true; }
+                else if (checkPos == pos 
+                && prefix == 'X' 
+                && !isCapture) { return true; }
+            }
+            if (lClear) {
+                checkPos = (char)(piecePos[0]) + (char)(piecePos[0] - i);
+                char prefix = gameBoard.getSquare(checkPos)->getPrefix();
+                if (prefix != 'X') { lClear = false; }
+                if (checkPos == pos 
+                && prefix != 'X' 
+                && isCapture
+                && gameBoard.getSquare(checkPos)->getColour() == !this->getColour()) { return true; }
+                else if (checkPos == pos 
+                && prefix == 'X' 
+                && !isCapture) { return true; }
+            }
+            if (urClear) {
+                checkPos = (char)(piecePos[0] + i) + (char)(piecePos[0] + i);
+                char prefix = gameBoard.getSquare(checkPos)->getPrefix();
+                if (prefix != 'X') { urClear = false; }
+                if (checkPos == pos 
+                && prefix != 'X' 
+                && isCapture
+                && gameBoard.getSquare(checkPos)->getColour() == !this->getColour()) { return true; }
+                else if (checkPos == pos 
+                && prefix == 'X' 
+                && !isCapture) { return true; }
+            }
+            if (drClear) {
+                checkPos = (char)(piecePos[0] + i) + (char)(piecePos[0] - i);
+                char prefix = gameBoard.getSquare(checkPos)->getPrefix();
+                if (prefix != 'X') { drClear = false; }
+                if (checkPos == pos 
+                && prefix != 'X' 
+                && isCapture
+                && gameBoard.getSquare(checkPos)->getColour() == !this->getColour()) { return true; }
+                else if (checkPos == pos 
+                && prefix == 'X' 
+                && !isCapture) { return true; }
+            }
+            if (dlClear) {
+                checkPos = (char)(piecePos[0] - i) + (char)(piecePos[0] - i);
+                char prefix = gameBoard.getSquare(checkPos)->getPrefix();
+                if (prefix != 'X') { dlClear = false; }
+                if (checkPos == pos 
+                && prefix != 'X' 
+                && isCapture
+                && gameBoard.getSquare(checkPos)->getColour() == !this->getColour()) { return true; }
+                else if (checkPos == pos 
+                && prefix == 'X' 
+                && !isCapture) { return true; }
+            }
+            if (ulClear) {
+                checkPos = (char)(piecePos[0] - i) + (char)(piecePos[0] + i);
+                char prefix = gameBoard.getSquare(checkPos)->getPrefix();
+                if (prefix != 'X') { ulClear = false; }
+                if (checkPos == pos 
+                && prefix != 'X' 
+                && isCapture
+                && gameBoard.getSquare(checkPos)->getColour() == !this->getColour()) { return true; }
+                else if (checkPos == pos 
+                && prefix == 'X' 
+                && !isCapture) { return true; }
+            }
+        }
+
+        return false;
+    };
+    
+    
+    bool Bishop::canSeeSquare(std::string pos, bool isCapture) {
+        std::string piecePos = this->getPos();
+        int x = Board::colMap2[piecePos[0]];
+        int y = piecePos[1];
+        bool urClear = true;
+        bool drClear = true;
+        bool dlClear = true;
+        bool ulClear = true;
+        std::string checkPos = piecePos;
+        for (int i = 1; i <= 7; i++ ){
+            if (urClear) {
+                checkPos = (char)(piecePos[0] + i) + (char)(piecePos[0] + i);
+                char prefix = gameBoard.getSquare(checkPos)->getPrefix();
+                if (prefix != 'X') { urClear = false; }
+                if (checkPos == pos 
+                && prefix != 'X' 
+                && isCapture
+                && gameBoard.getSquare(checkPos)->getColour() == !this->getColour()) { return true; }
+                else if (checkPos == pos 
+                && prefix == 'X' 
+                && !isCapture) { return true; }
+            }
+            if (drClear) {
+                checkPos = (char)(piecePos[0] + i) + (char)(piecePos[0] - i);
+                char prefix = gameBoard.getSquare(checkPos)->getPrefix();
+                if (prefix != 'X') { drClear = false; }
+                if (checkPos == pos 
+                && prefix != 'X' 
+                && isCapture
+                && gameBoard.getSquare(checkPos)->getColour() == !this->getColour()) { return true; }
+                else if (checkPos == pos 
+                && prefix == 'X' 
+                && !isCapture) { return true; }
+            }
+            if (dlClear) {
+                checkPos = (char)(piecePos[0] - i) + (char)(piecePos[0] - i);
+                char prefix = gameBoard.getSquare(checkPos)->getPrefix();
+                if (prefix != 'X') { dlClear = false; }
+                if (checkPos == pos 
+                && prefix != 'X' 
+                && isCapture
+                && gameBoard.getSquare(checkPos)->getColour() == !this->getColour()) { return true; }
+                else if (checkPos == pos 
+                && prefix == 'X' 
+                && !isCapture) { return true; }
+            }
+            if (ulClear) {
+                checkPos = (char)(piecePos[0] - i) + (char)(piecePos[0] + i);
+                char prefix = gameBoard.getSquare(checkPos)->getPrefix();
+                if (prefix != 'X') { ulClear = false; }
+                if (checkPos == pos 
+                && prefix != 'X' 
+                && isCapture
+                && gameBoard.getSquare(checkPos)->getColour() == !this->getColour()) { return true; }
+                else if (checkPos == pos 
+                && prefix == 'X' 
+                && !isCapture) { return true; }
+            }
+        }
+
+        return false;
+    }; 
 
     bool Knight::canSeeSquare(std::string pos, bool isCapture) { 
         float squareDistance = 5;
@@ -93,6 +269,66 @@ namespace Chess{
         return false;
     }; 
 
+    bool Rook::canSeeSquare(std::string pos, bool isCapture) { 
+        std::string piecePos = this->getPos();
+        int x = Board::colMap2[piecePos[0]];
+        int y = piecePos[1];
+        bool uClear = true;
+        bool rClear = true;
+        bool dClear = true;
+        bool lClear = true;
+        std::string checkPos = piecePos;
+        for (int i = 1; i <= 7; i++ ){
+            if (uClear) {
+                checkPos = (char)(piecePos[0] + i) + (char)(piecePos[0]);
+                char prefix = gameBoard.getSquare(checkPos)->getPrefix();
+                if (prefix != 'X') { uClear = false; }
+                if (checkPos == pos 
+                && prefix != 'X' 
+                && isCapture
+                && gameBoard.getSquare(checkPos)->getColour() == !this->getColour()) { return true; }
+                else if (checkPos == pos 
+                && prefix == 'X' 
+                && !isCapture) { return true; }
+            }
+            if (dClear) {
+                checkPos = (char)(piecePos[0] - i) + (char)(piecePos[0]);
+                char prefix = gameBoard.getSquare(checkPos)->getPrefix();
+                if (prefix != 'X') { dClear = false; }
+                if (checkPos == pos 
+                && prefix != 'X' 
+                && isCapture
+                && gameBoard.getSquare(checkPos)->getColour() == !this->getColour()) { return true; }
+                else if (checkPos == pos 
+                && prefix == 'X' 
+                && !isCapture) { return true; }
+            }
+            if (rClear) {
+                checkPos = (char)(piecePos[0]) + (char)(piecePos[0] + i);
+                char prefix = gameBoard.getSquare(checkPos)->getPrefix();
+                if (prefix != 'X') { rClear = false; }
+                if (checkPos == pos 
+                && prefix != 'X' 
+                && isCapture
+                && gameBoard.getSquare(checkPos)->getColour() == !this->getColour()) { return true; }
+                else if (checkPos == pos 
+                && prefix == 'X' 
+                && !isCapture) { return true; }
+            }
+            if (lClear) {
+                checkPos = (char)(piecePos[0]) + (char)(piecePos[0] - i);
+                char prefix = gameBoard.getSquare(checkPos)->getPrefix();
+                if (prefix != 'X') { lClear = false; }
+                if (checkPos == pos 
+                && prefix != 'X' 
+                && isCapture
+                && gameBoard.getSquare(checkPos)->getColour() == !this->getColour()) { return true; }
+                else if (checkPos == pos 
+                && prefix == 'X' 
+                && !isCapture) { return true; }
+            }
+        }
 
-    bool Rook::canSeeSquare(std::string pos, bool isCapture) { return true; }; 
+        return false;
+    }; 
 } // namespace Chess
