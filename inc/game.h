@@ -8,7 +8,7 @@ class Game
     public:
         Game();
         void generateBoard();
-        void ParseMove(std::string move);
+        std::tuple<char, std::string, std::string> ParseMove(std::string move);
 
         template <class T>
         BasePiece* addPiece(std::string pos, bool colour);

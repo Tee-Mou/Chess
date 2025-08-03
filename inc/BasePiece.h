@@ -3,18 +3,18 @@
 class BasePiece
 {
     public:
-        BasePiece(bool colour, std::string name) { clr = colour; name = name; }; // Constructor
+        BasePiece(bool colour, std::string prefix) { clr = colour; prefix = prefix; }; // Constructor
         ~BasePiece(); // Destructor
         
         // getters
         bool getColour() { return clr; };
-        std::string getName() { return name; };    
+        char getPRefix() { return prefix; };    
 
         // setters
         void pieceMoved() { hasMoved = true; };
 
     private:
-        std::string name;
+        char prefix;
         bool hasMoved = false;
         bool clr; /// 0 = black, 1 = white
 

@@ -1,6 +1,5 @@
 #include "../inc/Game.h"
 #include <string>
-#include <typeinfo>
 
 Game::Game(){
     this->generateBoard();
@@ -66,26 +65,36 @@ void Game::removePiece(std::string pos)
     addPiece<NoPiece>(pos, (x+y) % 2);
 };
 
-void Game::ParseMove(std::string move)
+std::tuple<char, std::string, std::string> Game::ParseMove(std::string move)
 {
-    char piece_notation = move[0];
-    std::string piece;
-    std::string piece_list = "abcdefgh";
-    if (piece_list.find(piece_notation)){
-        piece = "Pawn";                                             
-    } else if (piece_notation == 'K'){
-        piece = "King";
-    } else if (piece_notation == 'Q'){
-        piece = "Queen";
-    } else if (piece_notation == 'B'){
-        piece = "Bishop";
-    } else if (piece_notation == 'N'){
-        piece = "Knight";
-    } else if (piece_notation == 'R'){
-        piece = "Rook";
-    };
-    std::string newPos = move.substr(-2, 2);
-};
+    std::string piecePrefixes = "KQBNR";
+    char piecePrefix = 'P';
+    char captureChar = ' ';
+    if (piecePrefixes.find(move[0])){
+        piecePrefix = move[0];
+    }
+    if (move.find('x')){
+        captureChar = 'x';
+    }
+    int len = move.length();
+    std::string newPos = move.substr(len-2);
+
+    std::string oldPos;
+    oldPos.pop_back();
+    oldPos.pop_back();
+    if (oldPos[len-1] == 'x') { oldPos.pop_back(); };
+    if (piecePrefix != 'P') { oldPos.erase(0); };
+
+    std::string cols = "abcdefgh";
+    std::string rows = "12345678";
+    char anyCoord = 'x';
+    if (oldPos.length() == 1) { 
+        if (cols.find(oldPos[0])) { oldPos.push_back(anyCoord); } 
+        else if (rows.find(oldPos[0])) { oldPos.insert(0, &anyCoord); }
+    }
+
+    return {piecePrefix, oldPos, newPos};
+}
 
 template <class T>
 bool Game::checkSquare(std::string pos, std::string lookingForPiece)
@@ -103,7 +112,7 @@ bool Game::checkSquare(std::string pos, std::string lookingForPiece)
                 std::string name = piece->getName();
                 bool colour = piece->getColour();
                 if (colour == currentTurn && name == lookingForPiece){
-                    oldPos = checkPos 
+                    oldPos = checkPos;
                 };
             } 
         }
