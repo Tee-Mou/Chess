@@ -68,6 +68,31 @@ namespace Chess{
     }; 
     bool Queen::canSeeSquare(std::string pos, bool isCapture) { return true; }; 
     bool Bishop::canSeeSquare(std::string pos, bool isCapture) { return true; }; 
-    bool Knight::canSeeSquare(std::string pos, bool isCapture) { return true; }; 
+
+
+    bool Knight::canSeeSquare(std::string pos, bool isCapture) { 
+        float squareDistance = 5;
+        std::string piecePos = this->getPos();
+        int x = Board::colMap2[piecePos[0]];
+        int y = piecePos[1];
+        std::string checkPos;
+        for(int i = x-2; i <= x+2; i++ ){
+            for(int j = y-2; i <= x+2; j++ ){
+                checkPos = Board::colMap1[i] + (char)j;
+                if ((i - x)*(i - x) + (j-y)*(j-y) == squareDistance 
+                && checkPos == pos 
+                && gameBoard.getSquare(checkPos)->getPrefix() != 'X' 
+                && isCapture
+                && gameBoard.getSquare(checkPos)->getColour() == !this->getColour()) { return true; }
+                else if ((i - x)*(i - x) + (j-y)*(j-y) == squareDistance 
+                && checkPos == pos 
+                && gameBoard.getSquare(checkPos)->getPrefix() == 'X' 
+                && !isCapture) { return true; }
+            };
+        };
+        return false;
+    }; 
+
+
     bool Rook::canSeeSquare(std::string pos, bool isCapture) { return true; }; 
 } // namespace Chess
