@@ -1,22 +1,21 @@
-class Piece
+#include <string>
+
+class BasePiece
 {
     public:
-        Piece(bool colour, int xposition, int yposition); // Constructor
-        ~Piece(); // Destructor
+        BasePiece(bool colour, std::string name) { clr = colour; name = name; }; // Constructor
+        ~BasePiece(); // Destructor
         
         // getters
-        bool getIsCaptured() { return isCaptured; };
-        bool getClr() { return clr; };
-        int getXpos() { return xpos; };
-        int getYpos() { return ypos; };
+        bool getColour() { return clr; };
+        std::string getName() { return name; };    
 
         // setters
-        void switchIsCaptured() { !isCaptured; }
-        void setPos(int newXpos, int newYpos)  { xpos = newXpos; ypos = newYpos; };
+        void pieceMoved() { hasMoved = true; };
 
     private:
-        bool isCaptured = false;
-        bool clr;
-        int xpos;
-        int ypos;
+        std::string name;
+        bool hasMoved = false;
+        bool clr; /// 0 = black, 1 = white
+
 };
