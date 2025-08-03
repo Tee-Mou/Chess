@@ -7,12 +7,12 @@ namespace Chess{
         public:
             Game();
             void startGame();
-            std::tuple<char, std::string, std::string> ParseMove(std::string move);
+            std::tuple<char, std::string, std::string, bool> ParseMove(std::string move);
 
             template <class T>
             void addPiece(std::string pos, bool colour);
             template <class T>
-            bool checkSquare(std::tuple<char, std::string, std::string> moveTuple);
+            bool checkSquare(std::tuple<char, std::string, std::string, bool> moveTuple);
 
             bool getTurn();
 

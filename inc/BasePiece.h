@@ -10,7 +10,7 @@ namespace Chess{
         public:
             BasePiece(bool colour, char prefix, std::string pos) { clr = colour; prefix = prefix; pos=pos; }; // Constructor
             ~BasePiece(); // Destructor
-            virtual bool canSeeSquare(std::string pos);
+            virtual bool canSeeSquare(std::string pos, bool isCapture);
             
             // getters
             bool getColour() { return clr; };

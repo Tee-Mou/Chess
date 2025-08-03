@@ -69,7 +69,7 @@ namespace Chess{
         addPiece<NoPiece>(pos, (x+y) % 2);
     };
 
-    std::tuple<char, std::string, std::string> Game::ParseMove(std::string move)
+    std::tuple<char, std::string, std::string, bool> Game::ParseMove(std::string move)
     {
         std::string piecePrefixes = "KQBNR";
         char piecePrefix = 'P';
@@ -77,8 +77,10 @@ namespace Chess{
         if (piecePrefixes.find(move[0])){
             piecePrefix = move[0];
         }
+        bool isCapture = false;
         if (move.find('x')){
             captureChar = 'x';
+            isCapture = true;
         }
         int len = move.length();
         std::string newPos = move.substr(len-2);
@@ -97,15 +99,16 @@ namespace Chess{
             else if (rows.find(oldPos[0])) { oldPos.insert(0, &anyCoord); }
         } else if (oldPos.length() == 0) { oldPos = "xx"; };
 
-        return {piecePrefix, oldPos, newPos};
+        return {piecePrefix, oldPos, newPos, isCapture};
     }
 
     template <class T>
-    bool Game::checkSquare(std::tuple<char, std::string, std::string> moveTuple)
+    bool Game::checkSquare(std::tuple<char, std::string, std::string, bool> moveTuple)
     {
         char lookingForPrefix = std::get<0>(moveTuple);
         std::string oldPos = std::get<1>(moveTuple);
         std::string newPos = std::get<2>(moveTuple);
+        bool isCapture = std::get<3>(moveTuple);
 
         std::vector<BasePiece*>::iterator it;
         for (it = remainingPieces.begin(); it != remainingPieces.end(); ++it) {
@@ -117,7 +120,7 @@ namespace Chess{
             else if (oldPos[1] == 'x' and oldPos[0] == piecePos[0]) { posMatch = true; }
             else if (oldPos == piecePos) { posMatch = true; }
             else { posMatch = false; };
-            if (piece->getPrefix() == lookingForPrefix && posMatch) { piece->canSeeSquare(newPos); };
+            if (piece->getPrefix() == lookingForPrefix && posMatch) { piece->canSeeSquare(newPos, isCapture); };
         }
 
     };
