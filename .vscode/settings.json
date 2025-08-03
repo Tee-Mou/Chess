@@ -50,6 +50,11 @@
         "xtr1common": "cpp",
         "xutility": "cpp",
         "map": "cpp",
-        "string": "cpp"
+        "string": "cpp",
+        "algorithm": "cpp",
+        "vector": "cpp",
+        "optional": "cpp",
+        "regex": "cpp",
+        "xtree": "cpp"
     }
 }

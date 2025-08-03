@@ -1,9 +1,11 @@
-#include "BasePiece.h"
+#include "Board.h"
 
-class Pawn : public BasePiece{ using BasePiece::BasePiece; };
-class King : public BasePiece{ using BasePiece::BasePiece; };
-class Queen : public BasePiece{ using BasePiece::BasePiece; };
-class Bishop : public BasePiece{ using BasePiece::BasePiece; };
-class Knight : public BasePiece{ using BasePiece::BasePiece; };
-class Rook : public BasePiece{ using BasePiece::BasePiece; };
-class NoPiece : public BasePiece{ using BasePiece::BasePiece; };
+namespace Chess {
+    class Pawn : public BasePiece{ public: Pawn(bool colour, char prefix, std::string pos, Board board); bool canSeeSquare(std::string pos); private: Board gameBoard; };
+    class King : public BasePiece{ public: King(bool colour, char prefix, std::string pos, Board board); bool canSeeSquare(std::string pos); private: Board gameBoard; };
+    class Queen : public BasePiece{ public: Queen(bool colour, char prefix, std::string pos, Board board); bool canSeeSquare(std::string pos); private: Board gameBoard; };
+    class Bishop : public BasePiece{ public: Bishop(bool colour, char prefix, std::string pos, Board board); bool canSeeSquare(std::string pos); private: Board gameBoard; };
+    class Knight : public BasePiece{ public: Knight(bool colour, char prefix, std::string pos, Board board); bool canSeeSquare(std::string pos); private: Board gameBoard; };
+    class Rook : public BasePiece{ public: Rook(bool colour, char prefix, std::string pos, Board board); bool canSeeSquare(std::string pos); private: Board gameBoard; };
+    class NoPiece : public BasePiece{ public: NoPiece(bool colour, char prefix, std::string pos, Board board); bool canSeeSquare(std::string pos); private: Board gameBoard; };
+}
