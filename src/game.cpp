@@ -93,24 +93,45 @@ namespace Chess{
 
     bool Game::movePiece(std::tuple<std::string, std::string> moveTuple, BasePiece* piece) {
         std::map<std::string, BasePiece*> lastBoard = gameBoard->getboard();
-        piece->pieceMoved();
+
+        bool enPassant = false;
         std::string oldPos = std::get<0>(moveTuple);
         std::string newPos = std::get<1>(moveTuple);
+        std::string enPassantPos;
+        std::vector<BasePiece*>::iterator it;
+        for (it = remainingPieces.begin(); it != remainingPieces.end(); ++it) {
+            BasePiece* anyPiece = *it;
+            anyPiece->setEnPassantable(false);
+        }
+        if (newPos[0] == oldPos[0] 
+            && currentTurn ? newPos[1] == oldPos[1] + 2 : newPos[1] == oldPos[1] - 2 
+            && piece->getPrefix() == "P") { piece->setEnPassantable(true); }
+        if (oldPos[0] != newPos[0]
+            && piece->getPrefix() == "P"
+            && gameBoard->getSquare(newPos)->getPrefix() == " ") { 
+                enPassant = true;
+                enPassantPos = newPos;
+                currentTurn ? enPassantPos[1]-- : enPassantPos[1]++; 
+        }
+
         piece->setPos(newPos);
+        piece->pieceMoved();
         this->addNullPiece(oldPos);
+        if (enPassant) { this->addNullPiece(enPassantPos); }
         gameBoard->setSquare(newPos, piece);
 
-        std::vector<BasePiece*>::iterator it;
+        std::vector<BasePiece*>::iterator ite;
         bool checksSelf = false;
         bool checksOpp = false;
-        for (it = remainingPieces.begin(); it != remainingPieces.end(); ++it) {
-            BasePiece* piece = *it;
+        for (ite = remainingPieces.begin(); ite != remainingPieces.end(); ++ite) {
+            BasePiece* checkPiece = *ite;
             std::string prefix = piece->getPrefix();
             bool colour = piece->getColour();
             if (prefix == "K") { colour == currentTurn ? checksSelf = piece->checkForCheck() : checksOpp = piece->checkForCheck(); }
             if (colour != currentTurn && !checksSelf) { piece->setCheck(checksOpp); }
         }
         if (checksSelf) { gameBoard->setBoard(lastBoard); return false; }
+        
 
         boardHistory.push_back(gameBoard->getboard());
         return true;
@@ -134,7 +155,7 @@ namespace Chess{
     {
         int x = Board::colMap2[pos[0]];
         int y = pos[1];
-        addPiece<NoPiece>(&pos, (x+y) % 2);
+        this->addPiece<NoPiece>(&pos, (x+y) % 2);
     };
 
     std::tuple<std::string, std::string, std::string, bool> Game::ParseMove(std::string move)

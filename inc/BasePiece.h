@@ -15,12 +15,14 @@ namespace Chess{
             std::string getPrefix() { return mPrefix; };    
             std::string getPos() { return mPos; };
             bool getHasMoved() { return mHasMoved; };
+            bool getEnPassantable() { return mEnPassantable; }
             Board* getBoard() { return mGameBoard; };
             bool getCheck() { return mInCheck; };
             //setters
             void setCheck(bool isCheck) { mInCheck = isCheck; };
             void setPos(std::string pos) { mPos = pos; }
             void pieceMoved() { mHasMoved = true; };
+            void setEnPassantable(bool justMoved) { mEnPassantable = justMoved; }
 
         private:
             bool mInCheck;
@@ -28,6 +30,7 @@ namespace Chess{
             Board* mGameBoard;
             std::string mPos;
             bool mHasMoved = false;
+            bool mEnPassantable = false; 
             bool mClr; /// 0 = black, 1 = white
 
     };

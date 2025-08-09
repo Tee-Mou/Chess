@@ -28,14 +28,24 @@ namespace Chess{
             }
         }
         else{
-            checkPos[0]--;
-            if (checkPos == pos 
-                && (this->getBoard()->getSquare(checkPos)->getPrefix()) != " " 
-                && this->getBoard()->getSquare(checkPos)->getColour() == !this->getColour()) { return true; };
-            checkPos[0]++; checkPos[0]++;
-            if (checkPos == pos 
-                && (this->getBoard()->getSquare(checkPos)->getPrefix()) != " " 
-                && this->getBoard()->getSquare(checkPos)->getColour() == !this->getColour()) { return true; };
+            std::string enPassantPos = pos; enPassantPos[1] -= d;
+            std::string checkPosL = checkPos; checkPosL[0]--;
+            std::string checkPosR = checkPos; checkPosR[0]++;
+            std::string enPassantPosL = checkPos; enPassantPosL[0]--; enPassantPosL[1] -= d;
+            std::string enPassantPosR = checkPos; enPassantPosR[0]++; enPassantPosR[1] -= d;
+            std::vector<std::string> posList = {checkPosL, checkPosR, enPassantPosL, enPassantPosR};
+            std::vector<std::string>::iterator it;
+            for (it = posList.begin(); it != posList.end(); ++it) {
+                std::string checkPos = *it;
+                if (checkPos[0] < 'a' || checkPos[0] > 'h' || checkPos[1] < '1' || checkPos[1] > '8' ) { continue; }
+                if (this->getBoard()->getSquare(checkPos)->getColour() == !this->getColour() 
+                    && this->getBoard()->getSquare(checkPos)->getPrefix() != " " 
+                    && checkPos == pos) { return true; }
+                else if (this->getBoard()->getSquare(checkPos)->getColour() == !this->getColour()
+                    && this->getBoard()->getSquare(checkPos)->getPrefix() == "P"
+                    && this->getBoard()->getSquare(checkPos)->getEnPassantable()
+                    && checkPos == enPassantPos) { return true; };
+            }
         }
         return false;
     };
