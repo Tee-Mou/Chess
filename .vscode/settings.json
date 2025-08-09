@@ -55,6 +55,7 @@
         "vector": "cpp",
         "optional": "cpp",
         "regex": "cpp",
-        "xtree": "cpp"
+        "xtree": "cpp",
+        "sstream": "cpp"
     }
 }

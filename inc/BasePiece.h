@@ -1,31 +1,34 @@
 #include <string>
-#include <list>
-#include <map>
-#include <vector>
-#include <typeinfo>
+#include "Board.h"
 
 namespace Chess{
     class BasePiece
     {
         public:
-            BasePiece(bool colour, char prefix, std::string pos) { clr = colour; prefix = prefix; pos=pos; }; // Constructor
-            ~BasePiece(); // Destructor
-            virtual bool canSeeSquare(std::string pos, bool isCapture);
+            BasePiece(bool colour, std::string prefix, std::string pos, Board* board) : mClr( colour ), mPrefix( prefix ), mPos( pos ), mGameBoard( board ) {}; // Constructor
+            virtual bool canSeeSquare(std::string pos, bool isCapture) { return false; };
+            bool checkLine(std::string pos, bool isCapture, std::string type = "both");
+            bool checkForCheck();
             
             // getters
-            bool getColour() { return clr; };
-            char getPrefix() { return prefix; };    
-            std::string getPos() { return pos; };
-            bool getHasMoved() { return hasMoved; }
-
-            // setters
-            void pieceMoved() { hasMoved = true; };
+            bool getColour() { return mClr; };
+            std::string getPrefix() { return mPrefix; };    
+            std::string getPos() { return mPos; };
+            bool getHasMoved() { return mHasMoved; };
+            Board* getBoard() { return mGameBoard; };
+            bool getCheck() { return mInCheck; };
+            //setters
+            void setCheck(bool isCheck) { mInCheck = isCheck; };
+            void setPos(std::string pos) { mPos = pos; }
+            void pieceMoved() { mHasMoved = true; };
 
         private:
-            char prefix;
-            std::string pos;
-            bool hasMoved = false;
-            bool clr; /// 0 = black, 1 = white
+            bool mInCheck;
+            std::string mPrefix;
+            Board* mGameBoard;
+            std::string mPos;
+            bool mHasMoved = false;
+            bool mClr; /// 0 = black, 1 = white
 
     };
 } // namespace Chess
