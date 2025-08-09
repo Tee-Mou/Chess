@@ -21,10 +21,11 @@ using namespace Chess;
         
         game = Game();
         game.startGame();
-        while (true) { 
-            game.printBoard();
-            game.turn(); 
+        int state = 1;
+        while (state != 2){
+            state = game.turn();
+            if (state == 1) { game.nextTurn(); };
         }
-
+        game.gameOver();
         return 0;
     }

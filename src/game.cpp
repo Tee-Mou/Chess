@@ -70,39 +70,52 @@ namespace Chess{
                 SetConsoleTextAttribute(hConsole, k);
                 std::cout << " " << prefix << " "; 
                 SetConsoleTextAttribute(hConsole, 15);
-                if (i == 8) { std::cout << std::endl; }
-            }
-        }
+                if (i == 8) { std::cout << std::endl; };
+            };
+        };
     };
 
-    void Game::turn(){
+    void Game::gameOver() {
+        std::cout << "================GAME OVER================\n";
+        std::cout << "===========" << (currentTurn ? "WHITE" : "BLACK") << " IS THE WINNER" << "===========\n\n";
+        this-> printBoard();
+        std::cout << "\n\nEnter any letter to close... ";
+        char noUse;
+        std::cin >> noUse;
+    };
+
+    int Game::turn(){
+        this->printBoard();
         std::string move;
         std::cout << (currentTurn ? "White >> " : "Black >> ");
         std::cin >> move;
 
         std::tuple<std::string, std::string, std::string, bool> parsedMove = ParseMove(move);
         BasePiece* movedPiece = this->checkSquare(parsedMove);        
-        if (movedPiece->getPrefix() == " ") { std::cout << "Invalid move, please try again.\n"; return; };
+        if (movedPiece->getPrefix() == " ") { std::cout << "Invalid move, please try again.\n"; return 0; };
         std::tuple<std::string, std::string> moveTuple = {movedPiece->getPos(), std::get<2>(parsedMove)};
 
-        bool validMove = this->movePiece(moveTuple, movedPiece);
-        if (!validMove) { std::cout << "You cannot check yourself, please try again.\n"; return; }
-
-        currentTurn = !currentTurn;
+        int validMove = this->validateMove(moveTuple, movedPiece);
+        std::cout << validMove << "\n";
+        if (validMove == 0) { std::cout << "You cannot check yourself, please try again.\n"; return 0; };
+        boardHistory.push_back(gameBoard->getboard());
+        if (validMove == 2) { return 2; };
+        return 1;
     };
 
-    bool Game::movePiece(std::tuple<std::string, std::string> moveTuple, BasePiece* piece) {
+    int Game::validateMove(std::tuple<std::string, std::string> moveTuple, BasePiece* piece) {
         std::map<std::string, BasePiece*> lastBoard = gameBoard->getboard();
-
-        bool enPassant = false;
-        std::string oldPos = std::get<0>(moveTuple);
-        std::string newPos = std::get<1>(moveTuple);
-        std::string enPassantPos;
         std::vector<BasePiece*>::iterator it;
         for (it = remainingPieces.begin(); it != remainingPieces.end(); ++it) {
             BasePiece* anyPiece = *it;
             anyPiece->setEnPassantable(false);
         }
+
+        bool enPassant = false;
+        std::string oldPos = std::get<0>(moveTuple);
+        std::string newPos = std::get<1>(moveTuple);
+        std::string enPassantPos;
+
         if (newPos[0] == oldPos[0] 
             && currentTurn ? newPos[1] == oldPos[1] + 2 : newPos[1] == oldPos[1] - 2 
             && piece->getPrefix() == "P") { piece->setEnPassantable(true); }
@@ -121,21 +134,42 @@ namespace Chess{
         gameBoard->setSquare(newPos, piece);
 
         std::vector<BasePiece*>::iterator ite;
+        bool isCheckMate = false;
         bool checksSelf = false;
         bool checksOpp = false;
         for (ite = remainingPieces.begin(); ite != remainingPieces.end(); ++ite) {
             BasePiece* checkPiece = *ite;
-            std::string prefix = piece->getPrefix();
-            bool colour = piece->getColour();
-            if (prefix == "K") { colour == currentTurn ? checksSelf = piece->checkForCheck() : checksOpp = piece->checkForCheck(); }
-            if (colour != currentTurn && !checksSelf) { piece->setCheck(checksOpp); }
-        }
-        if (checksSelf) { gameBoard->setBoard(lastBoard); return false; }
-        
-
-        boardHistory.push_back(gameBoard->getboard());
-        return true;
+            std::string prefix = checkPiece->getPrefix();
+            bool colour = checkPiece->getColour();
+            std::cout << "Checking piece: " << prefix << " at " << checkPiece->getPos() << "\n";
+            if (prefix == "K") { colour == currentTurn ? checksSelf = checkPiece->checkForCheck() : checksOpp = checkPiece->checkForCheck();}
+            std::cout << checksSelf << checksOpp;
+        };
+        if (checksSelf) { gameBoard->setBoard(lastBoard); return 0; }
+        if (checksOpp && !mCheckingCheckmate) { mCheckingCheckmate = true; isCheckMate = this->checkCheckmate(); }
+        if (isCheckMate) { return 2; }
+        return 1;
     };
+
+    bool Game::checkCheckmate()
+    {
+        std::cout << "checking for checkmate\n"; 
+        std::vector<BasePiece*>::iterator pieceIt;
+        std::map<std::string, BasePiece*>::iterator posIt;
+
+        for (pieceIt = remainingPieces.end(); pieceIt != remainingPieces.end(); ++pieceIt){
+            BasePiece* piece = *pieceIt;
+            std::map<std::string, BasePiece*> board = gameBoard->getboard();
+            if (piece->getColour() == currentTurn) { continue; };
+            for (posIt = board.begin(); posIt != board.end(); ++posIt){
+                if (!piece->canSeeSquare(posIt->first, true) || !piece->canSeeSquare(posIt->first, false)) { continue; }
+                std::tuple<std::string, std::string> moveTuple = {piece->getPos(), posIt->first};
+                if (this->validateMove(moveTuple, piece) != 0) { mCheckingCheckmate = false; return false; };
+            };
+        }; 
+        mCheckingCheckmate = false;
+        return true;
+    }
 
     template <class T> 
     void Game::addPiece(std::string* pos, bool colour)
