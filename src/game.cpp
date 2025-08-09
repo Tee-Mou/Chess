@@ -57,27 +57,31 @@ namespace Chess{
 
     void Game::printBoard(){
         HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-        for (int j = 8; j >= 1; j--){
+        for (int j = 26; j >= 3; j--){
             for (int i = 1; i <= 8; i++) {
-                std::string pos = Board::colMap1[i] + std::to_string(j);
+                std::string pos = Board::colMap1[i] + std::to_string(j / 3);
                 std::string prefix;
                 prefix = gameBoard->getSquare(pos)->getPrefix();
                 int k;
-                if (gameBoard->getSquare(pos)->getColour() && (i + j) % 2 == 0) { k = 143; }
-                else if (gameBoard->getSquare(pos)->getColour() && (i + j) % 2 == 1) { k = 127; }
-                else if ((i + j) % 2 == 0) { k = 128; }
+                if (gameBoard->getSquare(pos)->getColour() && (i + j / 3) % 2 == 0) { k = 143; }
+                else if (gameBoard->getSquare(pos)->getColour() && (i + j / 3) % 2 == 1) { k = 127; }
+                else if ((i + j / 3) % 2 == 0) { k = 128; }
                 else { k = 112; }
                 SetConsoleTextAttribute(hConsole, k);
-                std::cout << " " << prefix << " "; 
+                if (j % 3 != 1) {
+                    std::cout << "         ";
+                }
+                else {
+                    std::cout << "   " << prefix << prefix << prefix << "   "; 
+                };
                 SetConsoleTextAttribute(hConsole, 15);
-                if (i == 8) { std::cout << std::endl; };
+                if (i == 8) { std::cout << "\n"; }; 
             };
         };
     };
 
     void Game::gameOver() {
-        std::cout << "================GAME OVER================\n";
-        std::cout << "===========" << (currentTurn ? "WHITE" : "BLACK") << " IS THE WINNER" << "===========\n\n";
+        std::cout << "================GAME OVER================\n" << "===========" << (currentTurn ? "WHITE" : "BLACK") << " IS THE WINNER" << "===========\n\n";
         this-> printBoard();
         std::cout << "\n\nEnter any letter to close... ";
         char noUse;
@@ -92,15 +96,14 @@ namespace Chess{
 
         std::tuple<std::string, std::string, std::string, bool> parsedMove = ParseMove(move);
         BasePiece* movedPiece = this->checkSquare(parsedMove);        
-        if (movedPiece->getPrefix() == " ") { std::cout << "Invalid move, please try again.\n"; return 0; };
+        if (movedPiece->getPrefix() == " ") { system("cls"); return 0; };
         std::tuple<std::string, std::string> moveTuple = {movedPiece->getPos(), std::get<2>(parsedMove)};
 
         int validMove = this->validateMove(moveTuple, movedPiece);
-        std::cout << validMove << "\n";
-        if (validMove == 0) { std::cout << "You cannot check yourself, please try again.\n"; return 0; };
+        if (validMove == 0) { system("cls"); return 0; };
         boardHistory.push_back(gameBoard->getboard());
-        if (validMove == 2) { return 2; };
-        return 1;
+        system("cls");
+        return validMove;
     };
 
     int Game::validateMove(std::tuple<std::string, std::string> moveTuple, BasePiece* piece) {
@@ -141,9 +144,7 @@ namespace Chess{
             BasePiece* checkPiece = *ite;
             std::string prefix = checkPiece->getPrefix();
             bool colour = checkPiece->getColour();
-            std::cout << "Checking piece: " << prefix << " at " << checkPiece->getPos() << "\n";
             if (prefix == "K") { colour == currentTurn ? checksSelf = checkPiece->checkForCheck() : checksOpp = checkPiece->checkForCheck();}
-            std::cout << checksSelf << checksOpp;
         };
         if (checksSelf) { gameBoard->setBoard(lastBoard); return 0; }
         if (checksOpp && !mCheckingCheckmate) { mCheckingCheckmate = true; isCheckMate = this->checkCheckmate(); }
@@ -153,7 +154,6 @@ namespace Chess{
 
     bool Game::checkCheckmate()
     {
-        std::cout << "checking for checkmate\n"; 
         std::vector<BasePiece*>::iterator pieceIt;
         std::map<std::string, BasePiece*>::iterator posIt;
 
@@ -196,30 +196,35 @@ namespace Chess{
     {
         std::string piecePrefixes = "KQBNR";
         std::string piecePrefix = "P";
+        std::string oldPos = "xx";
+        std::string newPos = "xx";
         if (piecePrefixes.find(move[0]) != std::string::npos){
             piecePrefix = move[0];
         }
         bool isCapture = false;
         int len = move.length();
-        std::string newPos = move.substr(len-2);
-        std::string oldPos = move;
-        if (piecePrefix != "P") { oldPos.erase(0, 1); };
-        len = oldPos.length();
-        if (len > 2) {
-            oldPos.pop_back();
-            len--;
-            oldPos.pop_back();
-            len--;
-            if (oldPos.find('x') != std::string::npos) { oldPos.pop_back(); ; isCapture = true; } 
+        if (len < 2) { piecePrefix = " "; }
+        else {
+            newPos = move.substr(len-2);
+            oldPos = move;
+            if (piecePrefix != "P") { oldPos.erase(0, 1); };
+            len = oldPos.length();
+            if (len > 2) {
+                oldPos.pop_back();
+                len--;
+                oldPos.pop_back();
+                len--;
+                if (oldPos.find('x') != std::string::npos) { oldPos.pop_back(); ; isCapture = true; } 
+            }
+            else { oldPos = "xx"; }
+            std::string cols = "abcdefgh";
+            std::string rows = "12345678";
+            char anyCoord = 'x';
+            if (oldPos.length() == 1) { 
+                if (cols.find(oldPos[0])) { oldPos.push_back(anyCoord); } 
+                else if (rows.find(oldPos[0])) { oldPos.insert(0, &anyCoord); }
+            } else if (oldPos.length() == 0) { oldPos = "xx"; };
         }
-        else { oldPos = "xx"; }
-        std::string cols = "abcdefgh";
-        std::string rows = "12345678";
-        char anyCoord = 'x';
-        if (oldPos.length() == 1) { 
-            if (cols.find(oldPos[0])) { oldPos.push_back(anyCoord); } 
-            else if (rows.find(oldPos[0])) { oldPos.insert(0, &anyCoord); }
-        } else if (oldPos.length() == 0) { oldPos = "xx"; };
         return {piecePrefix, oldPos, newPos, isCapture};
     }
 
