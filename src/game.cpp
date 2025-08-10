@@ -1,6 +1,7 @@
 #include "../inc/Game.h"
 #include <iostream>
 #include <ostream>
+#include <string>
 #include <windows.h> 
 #include <conio.h>
 
@@ -52,19 +53,22 @@ namespace Chess{
                 };
             }
         }
+        boardHistory.push_back(gameBoard->getboard());
         std::cout << "Done!" << std::endl;
     };
 
-    void Game::printBoard(){
+    void Game::printBoard(std::map<std::string, BasePiece*> boardToPrint){
+        
+        std::cout << "========================================================================\n";
         HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
         for (int j = 26; j >= 3; j--){
             for (int i = 1; i <= 8; i++) {
                 std::string pos = Board::colMap1[i] + std::to_string(j / 3);
                 std::string prefix;
-                prefix = gameBoard->getSquare(pos)->getPrefix();
+                prefix = boardToPrint[pos]->getPrefix();
                 int k;
-                if (gameBoard->getSquare(pos)->getColour() && (i + j / 3) % 2 == 0) { k = 143; }
-                else if (gameBoard->getSquare(pos)->getColour() && (i + j / 3) % 2 == 1) { k = 127; }
+                if (boardToPrint[pos]->getColour() && (i + j / 3) % 2 == 0) { k = 143; }
+                else if (boardToPrint[pos]->getColour() && (i + j / 3) % 2 == 1) { k = 127; }
                 else if ((i + j / 3) % 2 == 0) { k = 128; }
                 else { k = 112; }
                 SetConsoleTextAttribute(hConsole, k);
@@ -78,32 +82,64 @@ namespace Chess{
                 if (i == 8) { std::cout << "\n"; }; 
             };
         };
+        std::cout << "========================================================================\n"
+                  << "========================================================================\n";
     };
 
     void Game::gameOver() {
         std::cout << "================GAME OVER================\n" << "===========" << (currentTurn ? "WHITE" : "BLACK") << " IS THE WINNER" << "===========\n\n";
-        this-> printBoard();
+        this-> printBoard(gameBoard->getboard());
         std::cout << "\n\nEnter any letter to close... ";
         char noUse;
         std::cin >> noUse;
+        std::cin.ignore();
     };
 
     int Game::turn(){
-        this->printBoard();
+        this->printBoard(gameBoard->getboard());
+
         std::string move;
+        std::string quantityStr = "1";
         std::cout << (currentTurn ? "White >> " : "Black >> ");
-        std::cin >> move;
+        std::string args;
+        std::getline(std::cin, args);
 
-        std::tuple<std::string, std::string, std::string, bool> parsedMove = ParseMove(move);
-        BasePiece* movedPiece = this->checkSquare(parsedMove);        
-        if (movedPiece->getPrefix() == " ") { system("cls"); return 0; };
-        std::tuple<std::string, std::string> moveTuple = {movedPiece->getPos(), std::get<2>(parsedMove)};
+        if (args.find(" ") != std::string::npos){
+            move = args.substr(0, args.find(" "));
+            std::string rest = args.substr(args.find(" "));
+            quantityStr = rest.substr(1);
+        }
+        else { move = args; };
+        if (move != "peekback") {
+            std::tuple<std::string, std::string, std::string, bool> parsedMove = ParseMove(move);
+            BasePiece* movedPiece = this->checkSquare(parsedMove);        
+            if (movedPiece->getPrefix() == " ") { system("cls"); return 0; };
+            std::tuple<std::string, std::string> moveTuple = {movedPiece->getPos(), std::get<2>(parsedMove)};
 
-        int validMove = this->validateMove(moveTuple, movedPiece);
-        if (validMove == 0) { system("cls"); return 0; };
-        boardHistory.push_back(gameBoard->getboard());
-        system("cls");
-        return validMove;
+            int validMove = this->validateMove(moveTuple, movedPiece);
+            if (validMove == 0) { system("cls"); return 0; };
+            boardHistory.push_back(gameBoard->getboard());
+            system("cls");
+            return validMove; 
+        }
+        else if (move == "peekback") {
+            int quantity;
+            try{
+                quantity = std::stoi(quantityStr);
+            }
+            catch (std::invalid_argument) { quantity = 0; };
+            if (quantity < 1 || quantity > boardHistory.size() - 1) { system("cls"); return 0; };
+            
+            std::map<std::string, BasePiece*> boardToPeek = boardHistory.at(boardHistory.size() - 1 - quantity);
+            this->printBoard(boardToPeek);
+            std::cout << "Press enter twice to return to the game ";
+            getchar();
+            std::cin.ignore();
+            currentTurn = !currentTurn;
+            system("cls");
+            return 1;
+        }
+        else { system("cls");; return 0; };
     };
 
     int Game::validateMove(std::tuple<std::string, std::string> moveTuple, BasePiece* piece) {

@@ -9,7 +9,7 @@ namespace Chess{
             void startGame();
             void gameOver();
             int turn();
-            void printBoard();
+            void printBoard(std::map<std::string, BasePiece*> boardToPrint);
 
             template <class T>
             void addPiece(std::string* pos, bool colour);

@@ -23,11 +23,16 @@ using namespace Chess;
         game.startGame();
 
         system("cls");
+        std::cin.ignore();
         int state = 1;
+        std::cout << "========================================================================\n";
         while (state != 2){
             state = game.turn();
-            if (state == 1) { game.nextTurn(); }
-            else if (state == 0) { std::cout << "Entered invalid move, please try again\n"; }
+            if (state == 1) { 
+                game.nextTurn(); 
+                std::cout << "========================================================================\n";
+            }
+            else if (state == 0) { std::cout << "=================Entered invalid move, please try again=================\n"; }
         }
         game.gameOver();
         return 0;
