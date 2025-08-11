@@ -32,6 +32,7 @@ namespace Chess{
             bool mHasMoved = false;
             bool mEnPassantable = false; 
             bool mClr; /// 0 = black, 1 = white
+            bool inCheck;
 
     };
 } // namespace Chess

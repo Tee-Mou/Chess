@@ -100,7 +100,6 @@ namespace Chess{
 
         std::string move;
         std::string quantityStr = "1";
-        std::cout << (currentTurn ? "White >> " : "Black >> ");
         std::string args;
         std::getline(std::cin, args);
 
@@ -111,13 +110,21 @@ namespace Chess{
         }
         else { move = args; };
         if (move != "peekback") {
-            std::tuple<std::string, std::string, std::string, bool> parsedMove = ParseMove(move);
-            BasePiece* movedPiece = this->checkSquare(parsedMove);        
-            if (movedPiece->getPrefix() == " ") { system("cls"); return 0; };
-            std::tuple<std::string, std::string> moveTuple = {movedPiece->getPos(), std::get<2>(parsedMove)};
-
-            int validMove = this->validateMove(moveTuple, movedPiece);
-            if (validMove == 0) { system("cls"); return 0; };
+            int validMove;
+            if (move == "O-O-O"){
+                validMove = validateCastle(true);
+            }
+            else if (move == "O-O") {
+                validMove = validateCastle(false);
+            } 
+            else {                      
+                std::tuple<std::string, std::string, std::string, bool> parsedMove = ParseMove(move);
+                BasePiece* movedPiece = this->checkSquare(parsedMove);
+                if (movedPiece->getPrefix() == " ") { system("cls"); return 0; };
+                std::tuple<std::string, std::string> moveTuple = {movedPiece->getPos(), std::get<2>(parsedMove)};
+                validMove = this->validateMove(moveTuple, movedPiece);
+            };
+            if (validMove == 0) { return 0; };
             boardHistory.push_back(gameBoard->getboard());
             system("cls");
             return validMove; 
@@ -172,21 +179,59 @@ namespace Chess{
         if (enPassant) { this->addNullPiece(enPassantPos); }
         gameBoard->setSquare(newPos, piece);
 
-        std::vector<BasePiece*>::iterator ite;
+        int status = this->validateChecks();
+        if (status == 0) { gameBoard->setBoard(lastBoard); }
+        return status;
+    };
+
+    int Game::validateCastle(bool longCastle){
+        std::map<std::string, BasePiece*> lastBoard = gameBoard->getboard();
+        std::string oldKingPos = currentTurn ? "e1" : "e8";
+        std::string newKingPos = oldKingPos;
+        std::string oldRookPos = oldKingPos;
+        std::string newRookPos = oldRookPos;
+        oldRookPos[0] = longCastle ? 'a' : 'h';
+        newRookPos[0] = longCastle ? 'c' : 'f';
+        BasePiece* king = gameBoard->getSquare(oldKingPos);
+        BasePiece* rook = gameBoard->getSquare(oldRookPos);
+        if (king->getHasMoved() || rook->getHasMoved() || king->getCheck()) { return 0; };
+
+        for (int i = 0; i <  2; i++) {
+            longCastle ? newKingPos[0]-- : newKingPos[0]++;
+            if (lastBoard[newKingPos]->getPrefix() != " ") { return 0; }  
+            king->setPos(newKingPos);
+            gameBoard->setSquare(newKingPos, king);
+            if (king->checkForCheck()) { gameBoard->setBoard(lastBoard); return 0; };
+        };
+        this->addNullPiece(oldKingPos);
+        rook->setPos(newRookPos);
+        this->addNullPiece(oldRookPos);
+        gameBoard->setSquare(newRookPos, rook);
+        int status = this->validateChecks();
+        if (status == 0) { gameBoard->setBoard(lastBoard); }
+        return status;
+    }
+
+    int Game::validateChecks() {
+        std::vector<BasePiece*>::iterator it;
         bool isCheckMate = false;
         bool checksSelf = false;
         bool checksOpp = false;
-        for (ite = remainingPieces.begin(); ite != remainingPieces.end(); ++ite) {
-            BasePiece* checkPiece = *ite;
+        BasePiece* opposingKing;
+        for (it = remainingPieces.begin(); it != remainingPieces.end(); ++it) {
+            BasePiece* checkPiece = *it;
             std::string prefix = checkPiece->getPrefix();
             bool colour = checkPiece->getColour();
-            if (prefix == "K") { colour == currentTurn ? checksSelf = checkPiece->checkForCheck() : checksOpp = checkPiece->checkForCheck();}
+            if (prefix == "K") { colour == currentTurn ? checksSelf = checkPiece->checkForCheck() : checksOpp = checkPiece->checkForCheck(); 
+                if (colour != currentTurn) { opposingKing = checkPiece; }
+            }
         };
-        if (checksSelf) { gameBoard->setBoard(lastBoard); return 0; }
-        if (checksOpp && !mCheckingCheckmate) { mCheckingCheckmate = true; isCheckMate = this->checkCheckmate(); }
+        if (checksSelf) { return 0; }
+        if (checksOpp && !mCheckingCheckmate) {  mCheckingCheckmate = true; ; isCheckMate = this->checkCheckmate(); }
         if (isCheckMate) { return 2; }
+        opposingKing->setCheck(checksOpp);
         return 1;
-    };
+    }
 
     bool Game::checkCheckmate()
     {

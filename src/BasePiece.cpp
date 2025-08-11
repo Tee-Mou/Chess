@@ -52,8 +52,7 @@ namespace Chess {
         //Checked by Pawn?
         checkPrefix = "P";
         checkPos = mPos;
-        checkPos[1] = mPos[1] + 1;
-        if (!mClr) { checkPos[1] = mPos[1] - 1; };
+        checkPos[1] = mClr ? mPos[1] + 1: mPos[1] - 1;
         if (checkPos[1] >= '1' && checkPos[1] <= '8') {
             checkPos[0]--;
             if (checkPos[0] >= 'a') { 

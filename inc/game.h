@@ -19,6 +19,8 @@ namespace Chess{
             int validateMove(std::tuple<std::string, std::string> moveTuple, BasePiece* piece);
             bool doMove(std::tuple<std::string, std::string> moveTuple, BasePiece* piece);
             bool checkCheckmate();
+            int validateCastle(bool longCastle);
+            int validateChecks();
 
             bool getTurn();
 
