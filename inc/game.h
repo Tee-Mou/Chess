@@ -8,21 +8,24 @@ namespace Chess{
             Game();
             void startGame();
             void gameOver();
-            int turn();
+            std::string receiveMove();
+            int turn(std::string args);
             void printBoard(std::map<std::string, BasePiece*> boardToPrint);
 
             template <class T>
             void addPiece(std::string* pos, bool colour);
             void addNullPiece(std::string pos);
-            BasePiece* checkSquare(std::tuple<std::string, std::string, std::string, bool> moveTuple);
-            std::tuple<std::string, std::string, std::string, bool> ParseMove(std::string move);
+            BasePiece* findPiece(std::tuple<std::string, std::string, std::string, bool> moveTuple);
+            std::tuple<std::string, std::string, std::string, bool> parseMove(std::string move);
             int validateMove(std::tuple<std::string, std::string> moveTuple, BasePiece* piece);
             bool doMove(std::tuple<std::string, std::string> moveTuple, BasePiece* piece);
             bool checkCheckmate();
             int validateCastle(bool longCastle);
             int validateChecks();
 
+            //getters
             bool getTurn();
+            Board* getGameBoard() { return gameBoard; };
 
             //setters
             std::tuple<int, int> setOccupiedSquares(int old_x, int old_y, int new_x, int new_y);

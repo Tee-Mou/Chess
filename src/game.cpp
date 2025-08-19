@@ -2,6 +2,7 @@
 #include <iostream>
 #include <ostream>
 #include <string>
+#include <fstream>
 #include <windows.h> 
 #include <conio.h>
 
@@ -95,20 +96,23 @@ namespace Chess{
         std::cin.ignore();
     };
 
-    int Game::turn(){
-        this->printBoard(gameBoard->getboard());
+    std::string Game::receiveMove(){
+        std::string args;
+        std::cout << (currentTurn ? "White >> " : "Black >> ");
+        std::getline(std::cin, args);
+        return args;
+    }
 
+    int Game::turn(std::string args){
         std::string move;
         std::string quantityStr = "1";
-        std::string args;
-        std::getline(std::cin, args);
-
         if (args.find(" ") != std::string::npos){
             move = args.substr(0, args.find(" "));
             std::string rest = args.substr(args.find(" "));
             quantityStr = rest.substr(1);
         }
         else { move = args; };
+
         if (move != "peekback") {
             int validMove;
             if (move == "O-O-O"){
@@ -117,16 +121,17 @@ namespace Chess{
             else if (move == "O-O") {
                 validMove = validateCastle(false);
             } 
-            else {                      
-                std::tuple<std::string, std::string, std::string, bool> parsedMove = ParseMove(move);
-                BasePiece* movedPiece = this->checkSquare(parsedMove);
-                if (movedPiece->getPrefix() == " ") { system("cls"); return 0; };
+            else {
+                std::tuple<std::string, std::string, std::string, bool> parsedMove = parseMove(move);
+                BasePiece* movedPiece = this->findPiece(parsedMove);
+                if (movedPiece->getPrefix() == " ") { return 0; };
                 std::tuple<std::string, std::string> moveTuple = {movedPiece->getPos(), std::get<2>(parsedMove)};
                 validMove = this->validateMove(moveTuple, movedPiece);
             };
+            
             if (validMove == 0) { return 0; };
+
             boardHistory.push_back(gameBoard->getboard());
-            system("cls");
             return validMove; 
         }
         else if (move == "peekback") {
@@ -134,8 +139,9 @@ namespace Chess{
             try{
                 quantity = std::stoi(quantityStr);
             }
+
             catch (std::invalid_argument) { quantity = 0; };
-            if (quantity < 1 || quantity > boardHistory.size() - 1) { system("cls"); return 0; };
+            if (quantity < 1 || quantity > boardHistory.size() - 1) { return 0; };
             
             std::map<std::string, BasePiece*> boardToPeek = boardHistory.at(boardHistory.size() - 1 - quantity);
             this->printBoard(boardToPeek);
@@ -143,10 +149,10 @@ namespace Chess{
             getchar();
             std::cin.ignore();
             currentTurn = !currentTurn;
-            system("cls");
             return 1;
         }
-        else { system("cls");; return 0; };
+        else { ; return 0; };
+
     };
 
     int Game::validateMove(std::tuple<std::string, std::string> moveTuple, BasePiece* piece) {
@@ -262,8 +268,7 @@ namespace Chess{
         T* piece = new T(colour, prefix, *pos, gameBoard);
         gameBoard->removeFromBoard(pos);
         gameBoard->addToBoard(pos, piece);
-        if (prefix != " ") { remainingPieces.push_back(piece); } 
-
+        if (prefix != " ") { remainingPieces.push_back(piece); };
     };
 
     void Game::addNullPiece(std::string pos)
@@ -273,9 +278,10 @@ namespace Chess{
         this->addPiece<NoPiece>(&pos, (x+y) % 2);
     };
 
-    std::tuple<std::string, std::string, std::string, bool> Game::ParseMove(std::string move)
+    std::tuple<std::string, std::string, std::string, bool> Game::parseMove(std::string move)
     {
         std::string piecePrefixes = "KQBNR";
+        BasePiece* piece = remainingPieces[0];
         std::string piecePrefix = "P";
         std::string oldPos = "xx";
         std::string newPos = "xx";
@@ -309,15 +315,14 @@ namespace Chess{
         return {piecePrefix, oldPos, newPos, isCapture};
     }
 
-    BasePiece* Game::checkSquare(std::tuple<std::string, std::string, std::string, bool> moveTuple)
+    BasePiece* Game::findPiece(std::tuple<std::string, std::string, std::string, bool> moveTuple)
     {
         std::string lookingForPrefix = std::get<0>(moveTuple);
         std::string oldPos = std::get<1>(moveTuple);
         std::string newPos = std::get<2>(moveTuple);
         bool isCapture = std::get<3>(moveTuple);
         std::vector<BasePiece*> matches;
-
-        std::vector<BasePiece*>::iterator it;
+        std::vector<BasePiece*>::iterator it; 
         for (it = remainingPieces.begin(); it != remainingPieces.end(); ++it) {
             BasePiece* piece = *it;
             if (piece->getColour() != currentTurn) { continue; };

@@ -27,7 +27,8 @@ using namespace Chess;
         int state = 1;
         std::cout << "========================================================================\n";
         while (state != 2){
-            state = game.turn();
+            game.printBoard(game.getGameBoard()->getboard());
+            state = game.turn(game.receiveMove());
             if (state == 1) { 
                 game.nextTurn(); 
                 std::cout << "========================================================================\n";

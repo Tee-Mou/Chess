@@ -24,6 +24,7 @@ namespace Chess{
             void pieceMoved() { mHasMoved = true; };
             void setEnPassantable(bool justMoved) { mEnPassantable = justMoved; }
 
+
         private:
             bool mInCheck;
             std::string mPrefix;
