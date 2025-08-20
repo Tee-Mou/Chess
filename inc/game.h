@@ -26,15 +26,18 @@ namespace Chess{
             //getters
             bool getTurn();
             Board* getGameBoard() { return gameBoard; };
+            std::vector<std::string> getMoveList() { return moveList; };
 
             //setters
             std::tuple<int, int> setOccupiedSquares(int old_x, int old_y, int new_x, int new_y);
             void nextTurn() { currentTurn = !currentTurn; };
+            void addToMoveList(std::string move) { moveList.push_back(move); }
 
         private:
             std::vector<BasePiece*> remainingPieces = {};
             Board* gameBoard;
             std::vector<std::map<std::string, BasePiece*>> boardHistory;
+            std::vector<std::string> moveList;
             bool currentTurn = 1;
             bool mCheckingCheckmate = false;
     };

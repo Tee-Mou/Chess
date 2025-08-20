@@ -132,6 +132,7 @@ namespace Chess{
             if (validMove == 0) { return 0; };
 
             boardHistory.push_back(gameBoard->getboard());
+            this->addToMoveList(move);
             return validMove; 
         }
         else if (move == "peekback") {

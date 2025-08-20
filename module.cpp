@@ -16,7 +16,8 @@ PYBIND11_MODULE(chessAPI, handle) {
         .def("get_gameboard", &Game::getGameBoard, py::return_value_policy::reference)
         .def("print_board", &Game::printBoard, py::return_value_policy::reference)
         .def("game_over", &Game::gameOver, py::return_value_policy::reference)
-        .def("parse_move", &Game::parseMove, py::return_value_policy::reference);
+        .def("parse_move", &Game::parseMove, py::return_value_policy::reference)
+        .def("get_move_list", &Game::getMoveList,py::return_value_policy::reference);
 
     py::class_<Board>(handle, "Board")
         .def(py::init())
