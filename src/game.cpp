@@ -87,8 +87,13 @@ namespace Chess{
                   << "========================================================================\n";
     };
 
-    void Game::gameOver() {
-        std::cout << "================GAME OVER================\n" << "===========" << (currentTurn ? "WHITE" : "BLACK") << " IS THE WINNER" << "===========\n\n";
+    void Game::gameOver(int state) {
+        if (state == 2) {
+            std::cout << "================GAME OVER================\n" << "===========" << (currentTurn ? "WHITE" : "BLACK") << " IS THE WINNER" << "===========\n\n";
+        }
+        else if (state == 3) {
+            std::cout << "================GAME OVER================\n" << "================" << "STALEMATE" << "================\n\n";
+        }
         this-> printBoard(gameBoard->getboard());
         std::cout << "\n\nEnter any letter to close... ";
         char noUse;
@@ -152,7 +157,7 @@ namespace Chess{
             currentTurn = !currentTurn;
             return 1;
         }
-        else { ; return 0; };
+        else { return 0; };
 
     };
 
@@ -221,7 +226,7 @@ namespace Chess{
 
     int Game::validateChecks() {
         std::vector<BasePiece*>::iterator it;
-        bool isCheckMate = false;
+        bool isMate = false;
         bool checksSelf = false;
         bool checksOpp = false;
         BasePiece* opposingKing;
@@ -234,13 +239,15 @@ namespace Chess{
             }
         };
         if (checksSelf) { return 0; }
-        if (checksOpp && !mCheckingCheckmate) {  mCheckingCheckmate = true; ; isCheckMate = this->checkCheckmate(); }
-        if (isCheckMate) { return 2; }
+        isMate = this->checkForMate();
+        if (checksOpp && !mCheckingMate) {  mCheckingMate = true; }
+        if (checksOpp && isMate) { return 2; }
+        else if (isMate) { return 3; }
         opposingKing->setCheck(checksOpp);
         return 1;
     }
 
-    bool Game::checkCheckmate()
+    bool Game::checkForMate()
     {
         std::vector<BasePiece*>::iterator pieceIt;
         std::map<std::string, BasePiece*>::iterator posIt;
@@ -252,10 +259,10 @@ namespace Chess{
             for (posIt = board.begin(); posIt != board.end(); ++posIt){
                 if (!piece->canSeeSquare(posIt->first, true) || !piece->canSeeSquare(posIt->first, false)) { continue; }
                 std::tuple<std::string, std::string> moveTuple = {piece->getPos(), posIt->first};
-                if (this->validateMove(moveTuple, piece) != 0) { mCheckingCheckmate = false; return false; };
+                if (this->validateMove(moveTuple, piece) != 0) { mCheckingMate = false; return false; };
             };
         }; 
-        mCheckingCheckmate = false;
+        mCheckingMate = false;
         return true;
     }
 

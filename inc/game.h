@@ -7,7 +7,7 @@ namespace Chess{
         public:
             Game();
             void startGame();
-            void gameOver();
+            void gameOver(int state);
             std::string receiveMove();
             int turn(std::string args);
             void printBoard(std::map<std::string, BasePiece*> boardToPrint);
@@ -19,7 +19,7 @@ namespace Chess{
             std::tuple<std::string, std::string, std::string, bool> parseMove(std::string move);
             int validateMove(std::tuple<std::string, std::string> moveTuple, BasePiece* piece);
             bool doMove(std::tuple<std::string, std::string> moveTuple, BasePiece* piece);
-            bool checkCheckmate();
+            bool checkForMate();
             int validateCastle(bool longCastle);
             int validateChecks();
 
@@ -39,6 +39,6 @@ namespace Chess{
             std::vector<std::map<std::string, BasePiece*>> boardHistory;
             std::vector<std::string> moveList;
             bool currentTurn = 1;
-            bool mCheckingCheckmate = false;
+            bool mCheckingMate = false;
     };
 } // namespace Chess
